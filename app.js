@@ -34,7 +34,7 @@ var fuseOptions = {
 
 /*
  * Search endpoint used by the  badge app. 
- * /api/search?input=
+ * /api/search?input=[userinput]
 */
 app.get('/api/search', (req, res) => {
 
