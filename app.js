@@ -5,11 +5,15 @@ const User = require('./api/models/user');
 const app = express();
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); //key=value&key=value
+app.use(express.urlencoded({
+  extended: true
+})); //key=value&key=value
 
 //Connect the database
 mongoose.connect(
-  "mongodb://search-api:" + process.env.MONGO_ATLAS_PASSWORD + "@badge-book-shard-00-00-7gbwk.mongodb.net:27017,badge-book-shard-00-01-7gbwk.mongodb.net:27017,badge-book-shard-00-02-7gbwk.mongodb.net:27017/test?ssl=true&replicaSet=badge-book-shard-0&authSource=admin&retryWrites=true", { useNewUrlParser: true }
+  "mongodb://search-api:" + process.env.MONGO_ATLAS_PASSWORD + "@badge-book-shard-00-00-7gbwk.mongodb.net:27017,badge-book-shard-00-01-7gbwk.mongodb.net:27017,badge-book-shard-00-02-7gbwk.mongodb.net:27017/test?ssl=true&replicaSet=badge-book-shard-0&authSource=admin&retryWrites=true", {
+    useNewUrlParser: true
+  }
 ).then(() => console.log('Connected to MondoDb')).catch(err => console.error(err));
 
 // Add CORS headers to request
@@ -26,23 +30,25 @@ app.use((req, res, next) => {
 //Search configuration 
 var fuseOptions = {
   threshold: 0.5,
-  keys: [
-    'description',
-    'name',
-  ],
+  keys: [{
+    name: 'name',
+    weight: 0.7
+  }, {
+    name: 'description',
+    weight: 0.3
+  }],
 };
 
 /*
  * Search endpoint used by the  badge app. 
  * /api/search?input=[userinput]
-*/
+ */
 app.get('/api/search', (req, res) => {
 
   let userInput = req.query.input;
 
-  console.log('UserInput', userInput);
-
   User.find().exec().then(users => {
+    console.log("Users", users);
     var fuse = new Fuse(users, fuseOptions);
     const result = fuse.search(userInput);
     if (!result) {
