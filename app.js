@@ -5,7 +5,9 @@ const User = require('./api/models/user');
 const app = express();
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); //key=value&key=value
+app.use(express.urlencoded({
+  extended: true
+})); //key=value&key=value
 
 //Connect the database
 mongoose.connect(
@@ -28,16 +30,13 @@ app.use((req, res, next) => {
 //Search configuration 
 var fuseOptions = {
   threshold: 0.3,
-  keys: [{
-    name: 'name',
-    weight: 0.5
-  }, {
-    name: 'description',
-    weight: 0.3
-  }, {
-    name: 'email',
-    weight: 0.2
-  }],
+  location: 0,
+  distance: 100,
+  keys: [
+    'name',
+    'description',
+    'email',
+  ]
 };
 
 /*
@@ -47,6 +46,8 @@ var fuseOptions = {
 app.get('/api/search', (req, res) => {
 
   let userInput = req.query.input;
+  
+  console.log('Userinput', userInput);
 
   getUsers().then((users) => {
     var fuse = new Fuse(users, fuseOptions);
@@ -63,9 +64,13 @@ app.get('/api/search', (req, res) => {
 /*
  * Gets all users from the database
  * Only find users that have a userId property
-*/
+ */
 async function getUsers() {
-  const result = await User.find({ userId: { $ne: null } });
+  const result = await User.find({
+    userId: {
+      $ne: null
+    }
+  });
   return result;
 }
 
