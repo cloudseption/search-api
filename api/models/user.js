@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
+    userId: String,
+    email: String,
     name: String,
     description: String,
     picture: String

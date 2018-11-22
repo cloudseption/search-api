@@ -9,7 +9,9 @@ app.use(express.urlencoded({ extended: true })); //key=value&key=value
 
 //Connect the database
 mongoose.connect(
-  "mongodb://search-api:" + process.env.MONGO_ATLAS_PASSWORD + "@badge-book-shard-00-00-7gbwk.mongodb.net:27017,badge-book-shard-00-01-7gbwk.mongodb.net:27017,badge-book-shard-00-02-7gbwk.mongodb.net:27017/test?ssl=true&replicaSet=badge-book-shard-0&authSource=admin&retryWrites=true", { useNewUrlParser: true }
+  "mongodb://search-api:" + process.env.MONGO_ATLAS_PASSWORD + "@badge-book-shard-00-00-7gbwk.mongodb.net:27017,badge-book-shard-00-01-7gbwk.mongodb.net:27017,badge-book-shard-00-02-7gbwk.mongodb.net:27017/test?ssl=true&replicaSet=badge-book-shard-0&authSource=admin&retryWrites=true", {
+    useNewUrlParser: true
+  }
 ).then(() => console.log('Connected to MondoDb')).catch(err => console.error(err));
 
 // Add CORS headers to request
@@ -25,33 +27,47 @@ app.use((req, res, next) => {
 
 //Search configuration 
 var fuseOptions = {
-  threshold: 0.5,
-  keys: [
-    'description',
-    'name',
-  ],
+  threshold: 0.3,
+  keys: [{
+    name: 'name',
+    weight: 0.5
+  }, {
+    name: 'description',
+    weight: 0.3
+  }, {
+    name: 'email',
+    weight: 0.2
+  }],
 };
 
 /*
  * Search endpoint used by the  badge app. 
  * /api/search?input=[userinput]
-*/
+ */
 app.get('/api/search', (req, res) => {
 
   let userInput = req.query.input;
 
-  console.log('UserInput', userInput);
-
-  User.find().exec().then(users => {
+  getUsers().then((users) => {
     var fuse = new Fuse(users, fuseOptions);
     const result = fuse.search(userInput);
     if (!result) {
       res.status(404).send('No user found');
     }
     res.status(200).json(result);
+
   });
 
 });
+
+/*
+ * Gets all users from the database
+ * Only find users that have a userId property
+*/
+async function getUsers() {
+  const result = await User.find({ userId: { $ne: null } });
+  return result;
+}
 
 // PORT 
 const port = process.env.PORT || 80;
