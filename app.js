@@ -40,6 +40,14 @@ var fuseOptions = {
 };
 
 /*
+ * If the correct endpoint is not called,
+ * then a error message is sent. 
+ */
+app.get('/', (req, res) => {
+  res.status(404).send("This endpoint does not exist");
+});
+
+/*
  * Search endpoint used by the  badge app. 
  * /api/search?input=[userinput]
  */
