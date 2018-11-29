@@ -38,9 +38,13 @@ app.use((req, res, next) => {
 
 //Search configuration 
 var fuseOptions = {
+  tokenize: true,
+  matchAllTokens: true,
+  findAllMatches: true,
+  minMatchCharLength: 2,
   threshold: 0.3,
   location: 0,
-  distance: 100,
+  distance: 0,
   keys: [
     'name',
     'description',
