@@ -47,7 +47,7 @@ var fuseOptions = {
   matchAllTokens: true,
   findAllMatches: true,
   minMatchCharLength: 2,
-  threshold: 0.3,
+  threshold: 0.2,
   location: 0,
   distance: 0,
   keys: [
