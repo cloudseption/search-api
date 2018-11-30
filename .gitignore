@@ -80,7 +80,14 @@ typings/
 # FuseBox cache
 .fusebox/
 
+<<<<<<< HEAD
 #VsCode
 .vscode
 
 # End of https://www.gitignore.io/api/node
+=======
+# VS CODE
+.vscode
+
+# End of https://www.gitignore.io/api/node
+>>>>>>> develop
