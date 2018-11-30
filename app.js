@@ -11,7 +11,7 @@ app.use(express.urlencoded({
 
 //Connect the database
 mongoose.connect(
-  "mongodb://search-api:" + process.env.MONGO_ATLAS_PASSWORD + 
+  "mongodb://search-api:" + process.env.MONGO_ATLAS_PASSWORD +
   "@badge-book-shard-00-00-7gbwk.mongodb.net:27017,badge-book-shard-00-01-7gbwk.mongodb.net:27017,badge-book-shard-00-02-7gbwk.mongodb.net:27017/test?ssl=true&replicaSet=badge-book-shard-0&authSource=admin&retryWrites=true", {
     useNewUrlParser: true
   }
@@ -26,13 +26,18 @@ app.use((req, res, next) => {
     return res.status(200).json({});
   }
 
-//  console.log(req.headers.authorization);
-//
-//  if (!req.headers.authorization) {
-//    return res.status(403).json({
-//      error: 'No credentials sent!'
-//    });
-//  }
+  if (!req.headers.authorization) {
+    return res.status(403).json({
+      error: 'No credentials sent!'
+    });
+  }
+
+  if (req.headers.authorization != process.env.APP_TOKEN) {
+    return res.status(403).json({
+      error: 'Wrong App Token'
+    });
+  }
+
   next();
 });
 
@@ -60,13 +65,23 @@ app.get('/api/search', (req, res) => {
 
   let userInput = req.query.input;
 
-  console.log('Userinput', userInput);
+  if (!userInput) {
+    return res.status(400).json({
+      error: 'input parameter is empty'
+    });
+  }
+  //let inputArr = userInput.split(" ");
+  //let result = [];
 
   getUsers().then((users) => {
+
     var fuse = new Fuse(users, fuseOptions);
+
     const result = fuse.search(userInput);
     if (!result) {
-      res.status(404).send('No user found');
+      res.status(404).json({
+        error: 'No user(s) found'
+      });
     }
     res.status(200).json(result);
 
